@@ -1,0 +1,35 @@
+
+.dqx-columns.cern-ft-donateboxes {
+  overflow: visible;
+}
+
+.dqx-columns.cern-ft-donateboxes > .dqx-column {
+  -webkit-box-shadow: #ccc 0 3px 6px 6px;
+  -moz-box-shadow: #ccc 0 3px 6px 6px;
+  box-shadow: #ccc 0 3px 6px 6px;
+  margin-bottom: 0;
+}
+
+.dqx-columns.cern-ft-donateboxes > .dqx-column:after {
+  display: none;
+}
+
+.cern-ft-donateboxes > .dqx-column > label {
+  cursor: pointer;
+}
+
+.cern-ft-donateboxes.some-amount-chosen > .dqx-column {
+  background: #eee;
+}
+
+.cern-ft-donateboxes.some-amount-chosen > .dqx-column.active {
+  background: white;
+}
+
+.cern-ft-donateboxes > .dqx-column.active > label {
+  /* border: 2px solid red; */
+}
+
+.cern-ft-donateboxes > .dqx-column.active > label .field-name-field-donation-amount-reference {
+  font-weight:bold;
+}

@@ -1,0 +1,91 @@
+<?php
+/**
+ * @file
+ * Code for the cern_ft_donateboxes feature.
+ */
+use Drupal\cern_ft_donateboxes\Hooks;
+use Drupal\cern_ft_donateboxes\StaticCache;
+
+xautoload()->registerModulePsr4(__FILE__, 'psr4');
+
+require_once __DIR__ . '/cern_ft_donateboxes.features.inc';
+require_once __DIR__ . '/cern_ft_donateboxes.field.inc';
+
+/**
+ * Implements hook_theme()
+ *
+ * @return array
+ */
+function cern_ft_donateboxes_theme() {
+  return array(
+    'cern_ft_donateboxes_box' => array('render element' => 'element'),
+  );
+}
+
+/**
+ * Implements hook_civicrm_buildForm()
+ */
+function cern_ft_donateboxes_civicrm_buildForm($formName, &$form) {
+
+  Hooks::hook_civicrm_buildForm($formName, $form);
+}
+
+/**
+ * Implements hook_page_alter()
+ *
+ * @param $page
+ */
+function cern_ft_donateboxes_page_alter(&$page) {
+  $id = StaticCache::getContributionPageId();
+  if (empty($id)) {
+    return;
+  }
+  // Hide the sidebar on contribution pages.
+  unset($page['sidebar_second']);
+  if (!StaticCache::hasAmounts()) {
+    return;
+  }
+  if (empty($page['content']['system_main']['main'])) {
+    return;
+  }
+  $boxes = _cern_ft_donateboxes_page_boxes($id);
+  if (empty($boxes)) {
+    return;
+  }
+  $page['content']['system_main'] = array('boxes' => $boxes) + $page['content']['system_main'];
+}
+
+/**
+ * @param int $id
+ *
+ * @return array|null
+ *   Renderable array.
+ */
+function _cern_ft_donateboxes_page_boxes($id) {
+
+  // Fetch the nodes for this contribution id.
+  try {
+    $efq = new EntityFieldQuery();
+    $efq->entityCondition('entity_type', 'node');
+    $efq->entityCondition('bundle', 'donation_amount_boxes');
+    $efq->fieldCondition('field_civicrm_contribution_page', 'civicrm_reference_id', $id);
+    $result = $efq->execute();
+  }
+  catch (Exception $e) {
+    dpm($e);
+    return NULL;
+  }
+  if (empty($result['node'])) {
+    return NULL;
+  }
+  $obj = reset($result['node']);
+  if (empty($obj->nid)) {
+    return NULL;
+  }
+  $node = node_load($obj->nid);
+  if (!is_object($node)) {
+    return NULL;
+  }
+  return node_view($node, 'default');
+}
+
